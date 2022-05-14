@@ -33,7 +33,8 @@ namespace calculatorChallenge
 
                 testCalculator.TestAdd_InvalidInput_ReturnsZeroAndInputSum();
 
-                testCalculator.TestAdd_ThreeInput_ThrowsException();
+                // added for requirement #2
+                testCalculator.TestAdd_MoreThanTwoInput_ReturnsInputSum();
 
                 Console.WriteLine("All Test Cases Passed");
             }
@@ -72,23 +73,17 @@ namespace calculatorChallenge
             {
                 int.TryParse(splitInput[0], out returnValue);
             }
-            else if (splitInput.Count() > 2)
-            {
-                throw new ArgumentOutOfRangeException("More than 2 numbers were provided");
-            }
             else
             {
-                // exactly 2 input values exist
-                int splitInputValue;
-
-                if (int.TryParse(splitInput[0], out splitInputValue))
+                // 2 or more input values exist
+                foreach (var splitInputString in splitInput)
                 {
-                    returnValue += splitInputValue;
-                }
+                    int splitInputValue = 0;
 
-                if (int.TryParse(splitInput[1], out splitInputValue))
-                {
-                    returnValue += splitInputValue;
+                    if (int.TryParse(splitInputString, out splitInputValue))
+                    {
+                        returnValue += splitInputValue;
+                    }
                 }
             }
 
@@ -169,14 +164,17 @@ namespace calculatorChallenge
         }
 
         [TestMethod()]
-        public void TestAdd_ThreeInput_ThrowsException()
+        public void TestAdd_MoreThanTwoInput_ReturnsInputSum()
         {
             //arrange
-            string input = "1,2,3";
-            // expected result = an ArgumentOutOfRangeException exception will be thrown
+            string input = "1,2,3,4,5,6,7,8,9,10,11,12";
+            int expectedResult = 78;
 
-            //act + assert
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => Calculator.Add(input));
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
         }
 
     }
