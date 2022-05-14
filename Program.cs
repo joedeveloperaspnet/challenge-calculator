@@ -36,6 +36,9 @@ namespace calculatorChallenge
                 // added for requirement #2
                 testCalculator.TestAdd_MoreThanTwoInput_ReturnsInputSum();
 
+                // added for requirement #3
+                testCalculator.TestAdd_NewLineDelimitedInput_ReturnsInputSum();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -66,7 +69,7 @@ namespace calculatorChallenge
             }
 
             int returnValue = 0;
-            char delimiter = ',';
+            char[] delimiter = { ',', '\n' };
             string[] splitInput = input.Split(delimiter);
 
             if (splitInput.Count() == 1)
@@ -169,6 +172,20 @@ namespace calculatorChallenge
             //arrange
             string input = "1,2,3,4,5,6,7,8,9,10,11,12";
             int expectedResult = 78;
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }
+
+        [TestMethod()]
+        public void TestAdd_NewLineDelimitedInput_ReturnsInputSum()
+        {
+            //arrange
+            string input = "1\n2,3";
+            int expectedResult = 6;
 
             // act
             int actualResult = Calculator.Add(input);
