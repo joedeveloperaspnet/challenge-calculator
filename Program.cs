@@ -43,6 +43,9 @@ namespace calculatorChallenge
                 testCalculator.TestAdd_NegativeNumber_ThrowsException();
                 testCalculator.TestAdd_NegativeNumbers_ThrowsException_Message();
 
+                // added for requirement #5
+                testCalculator.TestAdd_InputValueGreaterThan1000_ReturnsInputSum();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -57,14 +60,16 @@ namespace calculatorChallenge
     static class Calculator
     {
         public const string NegativeNumberErrorMessage = "Input contains negative numbers:  ";
+        public const int MaxAllowableInputValue = 1000;
 
         /// <summary>
         /// Support a maximum of 2 numbers using a comma or newline delimiter. 
-        /// examples: 20 will return 20; 1,5000 will return 5001,
+        /// examples: 20 will return 20; 1,500 will return 501,
         ///      1,2,3,4,5,6,7,8,9,10,11,12 will return 78,  1\n2,3 will return 6
         /// empty input or missing numbers should be converted to 0
         /// invalid numbers should be converted to 0 e.g. 5,tytyt will return 5
         /// negative numbers will throw an exception that includes all of the negative numbers provided
+        /// any value greater than 1000 is an invalid number and will be converted to 0
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
@@ -92,6 +97,10 @@ namespace calculatorChallenge
                     if (splitInputValue < 0)
                     {
                         negativeNumbers += String.IsNullOrEmpty(negativeNumbers) ? splitInputValue.ToString() : ", " + splitInputValue.ToString();
+                    }
+                    else if (splitInputValue > MaxAllowableInputValue)
+                    {
+                        splitInputValue = 0;
                     }
 
                     returnValue += splitInputValue;
@@ -155,8 +164,8 @@ namespace calculatorChallenge
         public void TestAdd_TwoInput_ReturnsInputSum()
         {
             //arrange
-            string input = "1,5000";
-            int expectedResult = 5001;
+            string input = "1,500";
+            int expectedResult = 501;
 
             // act
             int actualResult = Calculator.Add(input);
@@ -250,5 +259,19 @@ namespace calculatorChallenge
             //assert
             Assert.AreEqual(actualErrorMessage, expectedErrorMessage);
         }
+
+        [TestMethod()]
+        public void TestAdd_InputValueGreaterThan1000_ReturnsInputSum()
+        {
+            //arrange           
+            string input = "1,2," + (Calculator.MaxAllowableInputValue + 1) + ",4,5,";
+            int expectedResult = 12;  // numbers above max allowable will be converted to 0
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }        
     }
 }
