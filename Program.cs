@@ -50,6 +50,9 @@ namespace calculatorChallenge
                 testCalculator.TestAdd_InputWithCustomDelimiter_ReturnsInputSum();
                 testCalculator.TestAdd_InputWithCustomDelimiterComma_ReturnsInputSum();
 
+                // added for requirement #7
+                testCalculator.TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -76,6 +79,8 @@ namespace calculatorChallenge
         /// any value greater than 1000 is an invalid number and will be converted to 0
         /// Support 1 custom delimiter of a single character using the format: //{delimiter}\n{numbers}
         ///      examples: //#\n2#5 will return 7; //,\n2,ff,100 will return 102
+        /// Support 1 custom delimiter of any length using the format: //[{delimiter}]\n{numbers}
+        ///     example: //[***]\n11***22***33 will return 66
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
@@ -87,27 +92,35 @@ namespace calculatorChallenge
                 return 0;
             }
 
-            char? customDelimiter = null ;
+            string customDelimiter = String.Empty ;
 
             // look for custom delimiter of a single character using the format: //{delimiter}\n{numbers}
-            if (input.Length > 5 && input.StartsWith("//"))
+            if (input.Length > 5 && input.StartsWith("//") && input.Contains("\n"))
             {
-                string customDelimiterItentifier = input.Substring(0, 4);
+                int indexOfNewline = input.IndexOf("\n");
+
+                string customDelimiterItentifier = input.Substring(0, indexOfNewline + 1);
 
                 // check for valid custom delimiter identifier and custom delimiter is not a comma (already in delimiter list)
                 if (customDelimiterItentifier.EndsWith("\n") && customDelimiterItentifier[2] != ',')
                 {
-                    customDelimiter = customDelimiterItentifier[2];
-                    input = input.Substring(4);
+                    if (customDelimiterItentifier.StartsWith("//[") && customDelimiterItentifier.EndsWith("]\n"))
+                    {
+                        customDelimiter = customDelimiterItentifier.Substring(3, indexOfNewline - 4);
+                        input = input.Substring(indexOfNewline + 1);
+                    }
+                    else
+                    {
+                        customDelimiter = customDelimiterItentifier.Substring(2, indexOfNewline - 2);
+                        input = input.Substring(indexOfNewline + 1);
+                    }
                 }
             }
 
             int returnValue = 0;
-            char[] standardDelimiters =  { ',', '\n' };
-            char[] customDelimiters =  { ',', '\n', customDelimiter.HasValue ? customDelimiter.Value : default(char) };
-            char[] delimiters = customDelimiter.HasValue ? customDelimiters : standardDelimiters;
+            string[] delimiters =  { ",", "\n", customDelimiter};
 
-            string[] splitInput = input.Split(delimiters);
+            string[] splitInput = input.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
             string negativeNumbers = String.Empty;
 
             // 1 or more input values exist
@@ -317,6 +330,19 @@ namespace calculatorChallenge
             //arrange           
             string input = "//,\n2,ff,100";
             int expectedResult = 102;  // , is the custom delimiter
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }
+        [TestMethod()]
+        public void TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum()
+        {
+            //arrange           
+            string input = "//[***]\n11***22***33";
+            int expectedResult = 66;  // *** is the custom delimiter
 
             // act
             int actualResult = Calculator.Add(input);
