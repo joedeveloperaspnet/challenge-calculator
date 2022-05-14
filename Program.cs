@@ -46,6 +46,10 @@ namespace calculatorChallenge
                 // added for requirement #5
                 testCalculator.TestAdd_InputValueGreaterThan1000_ReturnsInputSum();
 
+                // added for requirement #6
+                testCalculator.TestAdd_InputWithCustomDelimiter_ReturnsInputSum();
+                testCalculator.TestAdd_InputWithCustomDelimiterComma_ReturnsInputSum();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -70,21 +74,40 @@ namespace calculatorChallenge
         /// invalid numbers should be converted to 0 e.g. 5,tytyt will return 5
         /// negative numbers will throw an exception that includes all of the negative numbers provided
         /// any value greater than 1000 is an invalid number and will be converted to 0
+        /// Support 1 custom delimiter of a single character using the format: //{delimiter}\n{numbers}
+        ///      examples: //#\n2#5 will return 7; //,\n2,ff,100 will return 102
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
         /// <returns>the sum of the delimited input values</returns>
         public static int Add(string input)
         {
-
             if (String.IsNullOrWhiteSpace(input))
             {
                 return 0;
             }
 
+            char? customDelimiter = null ;
+
+            // look for custom delimiter of a single character using the format: //{delimiter}\n{numbers}
+            if (input.Length > 5 && input.StartsWith("//"))
+            {
+                string customDelimiterItentifier = input.Substring(0, 4);
+
+                // check for valid custom delimiter identifier and custom delimiter is not a comma (already in delimiter list)
+                if (customDelimiterItentifier.EndsWith("\n") && customDelimiterItentifier[2] != ',')
+                {
+                    customDelimiter = customDelimiterItentifier[2];
+                    input = input.Substring(4);
+                }
+            }
+
             int returnValue = 0;
-            char[] delimiter = { ',', '\n' };
-            string[] splitInput = input.Split(delimiter);
+            char[] standardDelimiters =  { ',', '\n' };
+            char[] customDelimiters =  { ',', '\n', customDelimiter.HasValue ? customDelimiter.Value : default(char) };
+            char[] delimiters = customDelimiter.HasValue ? customDelimiters : standardDelimiters;
+
+            string[] splitInput = input.Split(delimiters);
             string negativeNumbers = String.Empty;
 
             // 1 or more input values exist
@@ -272,6 +295,34 @@ namespace calculatorChallenge
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
-        }        
+        }
+
+        [TestMethod()]
+        public void TestAdd_InputWithCustomDelimiter_ReturnsInputSum()
+        {
+            //arrange           
+            string input = "//#\n2#5";
+            int expectedResult = 7;  // # is the custom delimiter
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }
+
+        [TestMethod()]
+        public void TestAdd_InputWithCustomDelimiterComma_ReturnsInputSum()
+        {
+            //arrange           
+            string input = "//,\n2,ff,100";
+            int expectedResult = 102;  // , is the custom delimiter
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }
     }
 }
