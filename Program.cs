@@ -53,6 +53,9 @@ namespace calculatorChallenge
                 // added for requirement #7
                 testCalculator.TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum();
 
+                // added for requirement #8
+                testCalculator.TestAdd_InputWithMultipleCustomDelimiterAnyLength_ReturnsInputSum();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -81,6 +84,8 @@ namespace calculatorChallenge
         ///      examples: //#\n2#5 will return 7; //,\n2,ff,100 will return 102
         /// Support 1 custom delimiter of any length using the format: //[{delimiter}]\n{numbers}
         ///     example: //[***]\n11***22***33 will return 66
+        /// Support multiple delimiters of any length using the format: //[{delimiter1}][{delimiter2}]...\n{numbers}
+        //      example: //[*][!!][r9r]\n11r9r22*hh*33!!44 will return 110
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
@@ -93,6 +98,7 @@ namespace calculatorChallenge
             }
 
             string customDelimiter = String.Empty ;
+            List<string> customDelimiterList = new List<string>();
 
             // look for custom delimiter of a single character using the format: //{delimiter}\n{numbers}
             if (input.Length > 5 && input.StartsWith("//") && input.Contains("\n"))
@@ -106,19 +112,32 @@ namespace calculatorChallenge
                 {
                     if (customDelimiterItentifier.StartsWith("//[") && customDelimiterItentifier.EndsWith("]\n"))
                     {
-                        customDelimiter = customDelimiterItentifier.Substring(3, indexOfNewline - 4);
+                        string multipleDelimiterIdentifiersCSV = customDelimiterItentifier.Replace("][", ",").Replace("//[", "").Replace("]\n", "");
+
+                        string[] multipleDelimiterIdentifiers = multipleDelimiterIdentifiersCSV.Split(',');
+
+                        foreach (string cd in multipleDelimiterIdentifiers)
+                        {
+                            customDelimiterList.Add(cd);
+                        }
+
                         input = input.Substring(indexOfNewline + 1);
                     }
                     else
                     {
                         customDelimiter = customDelimiterItentifier.Substring(2, indexOfNewline - 2);
+                        customDelimiterList.Add(customDelimiter);
+
                         input = input.Substring(indexOfNewline + 1);
                     }
                 }
             }
 
+            customDelimiterList.Add(",");
+            customDelimiterList.Add("\n");
+
             int returnValue = 0;
-            string[] delimiters =  { ",", "\n", customDelimiter};
+            string[] delimiters = customDelimiterList.ToArray();
 
             string[] splitInput = input.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
             string negativeNumbers = String.Empty;
@@ -337,12 +356,27 @@ namespace calculatorChallenge
             //assert
             Assert.AreEqual(actualResult, expectedResult);
         }
+
         [TestMethod()]
         public void TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum()
         {
             //arrange           
             string input = "//[***]\n11***22***33";
             int expectedResult = 66;  // *** is the custom delimiter
+
+            // act
+            int actualResult = Calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(actualResult, expectedResult);
+        }
+
+        [TestMethod()]
+        public void TestAdd_InputWithMultipleCustomDelimiterAnyLength_ReturnsInputSum()
+        {
+            //arrange           
+            string input = "//[*][!!][r9r]\n11r9r22*hh*33!!44";
+            int expectedResult = 110;  // multiple custom delimiters
 
             // act
             int actualResult = Calculator.Add(input);
