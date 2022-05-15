@@ -56,6 +56,9 @@ namespace calculatorChallenge
                 // added for requirement #8
                 testCalculator.TestAdd_InputWithMultipleCustomDelimiterAnyLength_ReturnsInputSum();
 
+                // added for stretch goal #1
+                testCalculator.TestAdd_InputWithMultipleCustomDelimiterAnyLength_DisplayFormula();
+
                 Console.WriteLine("All Test Cases Passed");
             }
             catch (Exception e)
@@ -67,30 +70,34 @@ namespace calculatorChallenge
        }
     }
 
-    static class Calculator
+    public class Calculator
     {
         public const string NegativeNumberErrorMessage = "Input contains negative numbers:  ";
         public const int MaxAllowableInputValue = 1000;
 
+        public string Formula { get; set; }
+
         /// <summary>
-        /// Support a maximum of 2 numbers using a comma or newline delimiter. 
-        /// examples: 20 will return 20; 1,500 will return 501,
+        /// Supports a maximum of 2 numbers using a comma or newline delimiter. 
+        ///      examples: 20 will return 20; 1,500 will return 501,
         ///      1,2,3,4,5,6,7,8,9,10,11,12 will return 78,  1\n2,3 will return 6
-        /// empty input or missing numbers should be converted to 0
-        /// invalid numbers should be converted to 0 e.g. 5,tytyt will return 5
-        /// negative numbers will throw an exception that includes all of the negative numbers provided
-        /// any value greater than 1000 is an invalid number and will be converted to 0
-        /// Support 1 custom delimiter of a single character using the format: //{delimiter}\n{numbers}
+        /// Empty input or missing numbers should be converted to 0
+        /// Invalid numbers should be converted to 0 e.g. 5,tytyt will return 5
+        /// Negative numbers will throw an exception that includes all of the negative numbers provided
+        /// Any value greater than 1000 is an invalid number and will be converted to 0
+        /// Supports 1 custom delimiter of a single character using the format: //{delimiter}\n{numbers}
         ///      examples: //#\n2#5 will return 7; //,\n2,ff,100 will return 102
-        /// Support 1 custom delimiter of any length using the format: //[{delimiter}]\n{numbers}
+        /// Supports 1 custom delimiter of any length using the format: //[{delimiter}]\n{numbers}
         ///     example: //[***]\n11***22***33 will return 66
-        /// Support multiple delimiters of any length using the format: //[{delimiter1}][{delimiter2}]...\n{numbers}
+        /// Supports multiple delimiters of any length using the format: //[{delimiter1}][{delimiter2}]...\n{numbers}
         //      example: //[*][!!][r9r]\n11r9r22*hh*33!!44 will return 110
+        /// Displays the formula used to calculate the result 
+        ///      example:  2,,4,rrrr,1001,6 will return 2+0+4+0+0+6 = 12
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
         /// <returns>the sum of the delimited input values</returns>
-        public static int Add(string input)
+        public int Add(string input)
         {
             if (String.IsNullOrWhiteSpace(input))
             {
@@ -133,9 +140,17 @@ namespace calculatorChallenge
                 }
             }
 
-            customDelimiterList.Add(",");
-            customDelimiterList.Add("\n");
+            // add default delimeters if they have not already been added
+            if (!customDelimiterList.Contains(","))
+            {
+                customDelimiterList.Add(",");
+            }
 
+            if (!customDelimiterList.Contains("\n"))
+            {
+                customDelimiterList.Add("\n");
+            }
+            
             int returnValue = 0;
             string[] delimiters = customDelimiterList.ToArray();
 
@@ -159,6 +174,8 @@ namespace calculatorChallenge
                     }
 
                     returnValue += splitInputValue;
+
+                    Formula += string.IsNullOrEmpty(Formula) ? splitInputValue.ToString() : " + " + splitInputValue.ToString();
                 }
             }
 
@@ -177,11 +194,12 @@ namespace calculatorChallenge
         public void TestAdd_EmptyInput_ReturnsZero()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "";
             int expectedResult = 0;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult );
@@ -191,11 +209,12 @@ namespace calculatorChallenge
         public void TestAdd_NullInput_ReturnsZero()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = null;
             int expectedResult = 0;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -205,11 +224,12 @@ namespace calculatorChallenge
         public void TestAdd_OneInput_ReturnsInputValue()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "20";
             int expectedResult = 20;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -219,11 +239,12 @@ namespace calculatorChallenge
         public void TestAdd_TwoInput_ReturnsInputSum()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1,500";
             int expectedResult = 501;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -233,11 +254,12 @@ namespace calculatorChallenge
         public void TestAdd_InvalidInput_ReturnsZeroAndInputSum()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "5,tytyt";
             int expectedResult = 5;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -247,11 +269,12 @@ namespace calculatorChallenge
         public void TestAdd_MoreThanTwoInput_ReturnsInputSum()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1,2,3,4,5,6,7,8,9,10,11,12";
             int expectedResult = 78;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -261,11 +284,12 @@ namespace calculatorChallenge
         public void TestAdd_NewLineDelimitedInput_ReturnsInputSum()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1\n2,3";
             int expectedResult = 6;
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -275,28 +299,31 @@ namespace calculatorChallenge
         public void TestAdd_NegativeNumber_ThrowsException()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1,-2,3";
             // expected result = an Argument Exception exception will be thrown with a message that will contain the negative number provided
 
             //act + assert
-            Assert.ThrowsException<ArgumentException>(() => Calculator.Add(input));
+            Assert.ThrowsException<ArgumentException>(() => calculator.Add(input));
         }
 
         [TestMethod()]
         public void TestAdd_NegativeNumbers_ThrowsException()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1,-2,3,40,-42,-53,67";
             // expected result = an Argument Exception exception will be thrown with a message that lists all of the negative numbers provided
 
             //act + assert
-            Assert.ThrowsException<ArgumentException>(() => Calculator.Add(input));
+            Assert.ThrowsException<ArgumentException>(() => calculator.Add(input));
         }
 
         [TestMethod()]
         public void TestAdd_NegativeNumbers_ThrowsException_Message()
         {
             //arrange
+            Calculator calculator = new Calculator();
             string input = "1,-2,3,40,-42,-53,67";
             string expectedErrorMessage = Calculator.NegativeNumberErrorMessage + "-2, -42, -53";
             string actualErrorMessage = String.Empty;
@@ -304,7 +331,7 @@ namespace calculatorChallenge
             //act
             try
             {
-                int actualResult = Calculator.Add(input);
+                int actualResult = calculator.Add(input);
             }
             catch (Exception e)
             {
@@ -319,11 +346,12 @@ namespace calculatorChallenge
         public void TestAdd_InputValueGreaterThan1000_ReturnsInputSum()
         {
             //arrange           
+            Calculator calculator = new Calculator();
             string input = "1,2," + (Calculator.MaxAllowableInputValue + 1) + ",4,5,";
             int expectedResult = 12;  // numbers above max allowable will be converted to 0
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -333,11 +361,12 @@ namespace calculatorChallenge
         public void TestAdd_InputWithCustomDelimiter_ReturnsInputSum()
         {
             //arrange           
+            Calculator calculator = new Calculator();
             string input = "//#\n2#5";
             int expectedResult = 7;  // # is the custom delimiter
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -347,11 +376,12 @@ namespace calculatorChallenge
         public void TestAdd_InputWithCustomDelimiterComma_ReturnsInputSum()
         {
             //arrange           
+            Calculator calculator = new Calculator();
             string input = "//,\n2,ff,100";
             int expectedResult = 102;  // , is the custom delimiter
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -361,11 +391,12 @@ namespace calculatorChallenge
         public void TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum()
         {
             //arrange           
+            Calculator calculator = new Calculator();
             string input = "//[***]\n11***22***33";
             int expectedResult = 66;  // *** is the custom delimiter
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
@@ -375,14 +406,31 @@ namespace calculatorChallenge
         public void TestAdd_InputWithMultipleCustomDelimiterAnyLength_ReturnsInputSum()
         {
             //arrange           
+            Calculator calculator = new Calculator();
             string input = "//[*][!!][r9r]\n11r9r22*hh*33!!44";
             int expectedResult = 110;  // multiple custom delimiters
 
             // act
-            int actualResult = Calculator.Add(input);
+            int actualResult = calculator.Add(input);
 
             //assert
             Assert.AreEqual(actualResult, expectedResult);
+        }
+
+
+        [TestMethod()]
+        public void TestAdd_InputWithMultipleCustomDelimiterAnyLength_DisplayFormula()
+        {
+            //arrange           
+            Calculator calculator = new Calculator();
+            string input = "//[*][!!][r9r]\n11r9r22*hh*33!!44";
+            string expectedFormula = "11 + 22 + 33 + 44";
+
+            // act
+            calculator.Add(input);
+
+            //assert
+            Assert.AreEqual(calculator.Formula, expectedFormula);
         }
     }
 }
