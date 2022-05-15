@@ -17,7 +17,75 @@ namespace calculatorChallenge
 {
     internal class Program
     {
+        static bool Cancelled = false;
+
         static void Main(string[] args)
+        {
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
+
+            Calculator calculator = new Calculator();
+            string input = String.Empty;
+
+            Console.WriteLine();
+            Console.WriteLine("Enter integers to add. Enter Ctrl + C when finished.");
+
+            try
+            {
+               do
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter Integer: ");
+
+                    input = Console.ReadLine();
+
+                    if (input == null)
+                    {
+                        // Ctrl + C was entered
+                        break;
+                    }
+
+                    calculator.Add(input);
+
+                    Console.WriteLine("Total: " + calculator.TotalResult);
+            
+                } while (true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                Console.ReadLine();
+            }
+
+            Console.WriteLine();
+            RunTestCases();
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter key to exit");
+
+            Console.ReadLine();
+
+             Console.CancelKeyPress -= new ConsoleCancelEventHandler(Console_CancelKeyPress);
+        }
+
+        /// <summary>
+        /// Code borrowed from http://www.blackwasp.co.uk/CaptureConsoleBreak.aspx
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Finished");
+            Console.WriteLine();
+
+            if (e.SpecialKey == ConsoleSpecialKey.ControlC)
+            {
+                Cancelled = true;
+                e.Cancel = true;
+            }
+        }
+
+        static void RunTestCases()
         {
             CalculatorTestCases testCalculator = new CalculatorTestCases();
 
@@ -66,8 +134,7 @@ namespace calculatorChallenge
                 Console.WriteLine("Test Case Failed: " + e.Message);
             }
 
-            Console.ReadLine();
-       }
+        }
     }
 
     public class Calculator
@@ -76,6 +143,18 @@ namespace calculatorChallenge
         public const int MaxAllowableInputValue = 1000;
 
         public string Formula { get; set; }
+        public int Total { get; set; }
+        public string  TotalResult { 
+            get
+            {
+                if (Total.ToString() == Formula)
+                {
+                    return Formula;
+                }
+
+                return Formula + " = " + Total.ToString();
+            }
+        }
 
         /// <summary>
         /// Supports a maximum of 2 numbers using a comma or newline delimiter. 
@@ -90,7 +169,7 @@ namespace calculatorChallenge
         /// Supports 1 custom delimiter of any length using the format: //[{delimiter}]\n{numbers}
         ///     example: //[***]\n11***22***33 will return 66
         /// Supports multiple delimiters of any length using the format: //[{delimiter1}][{delimiter2}]...\n{numbers}
-        //      example: //[*][!!][r9r]\n11r9r22*hh*33!!44 will return 110
+        ///      example: //[*][!!][r9r]\n11r9r22*hh*33!!44 will return 110
         /// Displays the formula used to calculate the result 
         ///      example:  2,,4,rrrr,1001,6 will return 2+0+4+0+0+6 = 12
         /// NOTE: whitespace between the input values will be ignored
@@ -176,6 +255,8 @@ namespace calculatorChallenge
                     returnValue += splitInputValue;
 
                     Formula += string.IsNullOrEmpty(Formula) ? splitInputValue.ToString() : " + " + splitInputValue.ToString();
+
+                    Total += splitInputValue;
                 }
             }
 
@@ -416,7 +497,6 @@ namespace calculatorChallenge
             //assert
             Assert.AreEqual(actualResult, expectedResult);
         }
-
 
         [TestMethod()]
         public void TestAdd_InputWithMultipleCustomDelimiterAnyLength_DisplayFormula()
