@@ -11,27 +11,161 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 /// <summary>
 /// Restarurant365 Code Challenge: String Calculator
 /// Candidate: Joseph DiPierro
-/// Date: May 13, 2022
+/// Created: May 13, 2022
+/// Updated: May 14, 2022
 /// </summary>
 namespace calculatorChallenge
 {
     internal class Program
     {
-        static bool Cancelled = false;
-
         static void Main(string[] args)
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
 
             Calculator calculator = new Calculator();
+
+            DisplayAvailableArguements();
+
+            // added for stretch goal #3
+
+            SetAndDisplayConsoleArguements(args, calculator);
+
+            GetAndDisplayCommandLineArguements(args, calculator);
+
+            GetAndProcessCalculatorAddition(calculator);
+
+            RunUnitTests();
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter key to exit");
+
+            Console.ReadLine();
+
+             Console.CancelKeyPress -= new ConsoleCancelEventHandler(Console_CancelKeyPress);
+        }
+
+        /// <summary>
+        /// Display the available arguements (console and command line
+        /// (1) Deny nagative numbers, (2) upper bound, or (3) alturnate delimiter
+        /// </summary>
+        static void DisplayAvailableArguements()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Available Arguements");
+            Console.WriteLine("---------------------------------------------");
+            Console.WriteLine("Deny negative numbers: boolean (true, false)");
+            Console.WriteLine("Upper bound: integer");
+            Console.WriteLine("Alturnate delimiter: string");
+            Console.WriteLine("For example:  |?| 100 true");
+            Console.WriteLine("---------------------------------------------");
+        }
+
+        /// <summary>
+        /// Allow console command line arguements to be specified for
+        /// (1) Deny nagative numbers, (2) upper bound, or (3) alturnate delimiter
+        /// and set the calculator properties if specified
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="calculator"></param>
+        static void SetAndDisplayConsoleArguements(string[] args, Calculator calculator)
+        {
+            string input = String.Empty;
+            bool denyNegativeNumbers = false;
+            int upperBound = 0;
+            string alternateDelimiter = String.Empty;
+
+            if (args.Length == 0)
+            {
+                Console.WriteLine("No console arguements specified");
+            }
+            else
+            {
+                Console.WriteLine("Specified Console Arguements");
+                Console.WriteLine("---------------------------------------------");
+
+                foreach (string arg in args)
+                {
+                    if (bool.TryParse(arg, out denyNegativeNumbers))
+                    {
+                        calculator.DenyNegativeNumbers = denyNegativeNumbers;
+                        Console.WriteLine("Deny negative numbers = " + denyNegativeNumbers.ToString());
+                    }
+                    else if (int.TryParse(arg, out upperBound))
+                    {
+                        calculator.UpperBound = upperBound;
+                        Console.WriteLine("Upper bound = " + upperBound.ToString());
+                    }
+                    else
+                    {
+                        calculator.AlturnateDelimiter = arg;
+                        Console.WriteLine("Alturnate delimiter = " + arg);
+                    }
+                }
+            }
+
+            Console.WriteLine("---------------------------------------------");
+        }
+
+        /// <summary>
+        /// Allow the user to specify up to 3 command line arguements for
+        /// (1) Deny nagative numbers, (2) upper bound, or (3) alturnate delimiter
+        /// and set the calculator properties if specified
+        /// </summary>
+        /// <param name="args"></param>
+        /// <param name="calculator"></param>
+        static void GetAndDisplayCommandLineArguements(string[] args, Calculator calculator)
+        {
+            string input = String.Empty;
+            bool denyNegativeNumbers = false;
+            int upperBound = 0;
+            string alternateDelimiter = String.Empty;
+
+            Console.WriteLine();
+            Console.Write("Enter arguements (optional): ");
+            input = Console.ReadLine();
+
+            if (!String.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine();
+                args = input.Split(' ');
+
+                foreach (string arg in args)
+                {
+                    if (bool.TryParse(arg, out denyNegativeNumbers))
+                    {
+                        calculator.DenyNegativeNumbers = denyNegativeNumbers;
+                        Console.WriteLine("Deny negative numbers = " + denyNegativeNumbers.ToString());
+                    }
+                    else if (int.TryParse(arg, out upperBound))
+                    {
+                        calculator.UpperBound = upperBound;
+                        Console.WriteLine("Upper bound = " + upperBound.ToString());
+                    }
+                    else
+                    {
+                        calculator.AlturnateDelimiter = arg;
+                        Console.WriteLine("Alturnate delimiter = " + arg);
+                    }
+                }
+
+                Console.WriteLine("---------------------------------------------");
+            }
+        }
+
+        /// <summary>
+        /// Get numbers to add or Ctrl + C when finished
+        /// </summary>
+        /// <param name="calculator"></param>
+        static void GetAndProcessCalculatorAddition(Calculator calculator)
+        {
             string input = String.Empty;
 
             Console.WriteLine();
-            Console.WriteLine("Enter integers to add. Enter Ctrl + C when finished.");
+            Console.WriteLine("Enter input to add. Enter Ctrl + C when finished.");
 
             try
             {
-               do
+                do
                 {
                     Console.WriteLine();
                     Console.Write("Enter Integer: ");
@@ -47,7 +181,7 @@ namespace calculatorChallenge
                     calculator.Add(input);
 
                     Console.WriteLine("Total: " + calculator.TotalResult);
-            
+
                 } while (true);
             }
             catch (Exception e)
@@ -57,17 +191,10 @@ namespace calculatorChallenge
             }
 
             Console.WriteLine();
-            RunTestCases();
-
-            Console.WriteLine();
-            Console.WriteLine("Press enter key to exit");
-
-            Console.ReadLine();
-
-             Console.CancelKeyPress -= new ConsoleCancelEventHandler(Console_CancelKeyPress);
         }
 
         /// <summary>
+        /// Handle the Ctrl + C event to allow continued execution
         /// Code borrowed from http://www.blackwasp.co.uk/CaptureConsoleBreak.aspx
         /// </summary>
         /// <param name="sender"></param>
@@ -80,12 +207,14 @@ namespace calculatorChallenge
 
             if (e.SpecialKey == ConsoleSpecialKey.ControlC)
             {
-                Cancelled = true;
                 e.Cancel = true;
             }
         }
 
-        static void RunTestCases()
+        /// <summary>
+        /// Run the calculator unit tests
+        /// </summary>
+        static void RunUnitTests()
         {
             CalculatorTestCases testCalculator = new CalculatorTestCases();
 
@@ -112,7 +241,7 @@ namespace calculatorChallenge
                 testCalculator.TestAdd_NegativeNumbers_ThrowsException_Message();
 
                 // added for requirement #5
-                testCalculator.TestAdd_InputValueGreaterThan1000_ReturnsInputSum();
+                testCalculator.TestAdd_InputValueGreaterThanUpperBound_ReturnsInputSum();
 
                 // added for requirement #6
                 testCalculator.TestAdd_InputWithCustomDelimiter_ReturnsInputSum();
@@ -140,7 +269,24 @@ namespace calculatorChallenge
     public class Calculator
     {
         public const string NegativeNumberErrorMessage = "Input contains negative numbers:  ";
-        public const int MaxAllowableInputValue = 1000;
+        public const int DefaultMaxAllowableInputValue = 1000;
+
+        private int _upperBound = DefaultMaxAllowableInputValue;
+        public int UpperBound { 
+            get
+            {
+                return _upperBound; 
+            }
+
+            set
+            {
+                _upperBound = value;
+            }
+        }       
+
+        public bool DenyNegativeNumbers { get; set; }
+
+        public string AlturnateDelimiter { get; set; }
 
         public string Formula { get; set; }
         public int Total { get; set; }
@@ -229,6 +375,12 @@ namespace calculatorChallenge
             {
                 customDelimiterList.Add("\n");
             }
+
+            // add custom delimeter if one was provided as an arguement and if they have not already been added it
+            if ( !String.IsNullOrWhiteSpace(AlturnateDelimiter) && !customDelimiterList.Contains(AlturnateDelimiter))
+            {
+                customDelimiterList.Add(AlturnateDelimiter);
+            }
             
             int returnValue = 0;
             string[] delimiters = customDelimiterList.ToArray();
@@ -243,11 +395,11 @@ namespace calculatorChallenge
 
                 if (int.TryParse(splitInputString, out splitInputValue))
                 {
-                    if (splitInputValue < 0)
+                    if (DenyNegativeNumbers && splitInputValue < 0)
                     {
                         negativeNumbers += String.IsNullOrEmpty(negativeNumbers) ? splitInputValue.ToString() : ", " + splitInputValue.ToString();
                     }
-                    else if (splitInputValue > MaxAllowableInputValue)
+                    else if (splitInputValue > UpperBound)
                     {
                         splitInputValue = 0;
                     }
@@ -260,7 +412,7 @@ namespace calculatorChallenge
                 }
             }
 
-            if (!String.IsNullOrEmpty(negativeNumbers))
+            if (DenyNegativeNumbers && !String.IsNullOrEmpty(negativeNumbers))
             {
                 throw new ArgumentException(NegativeNumberErrorMessage + negativeNumbers);
             }
@@ -381,6 +533,8 @@ namespace calculatorChallenge
         {
             //arrange
             Calculator calculator = new Calculator();
+            calculator.DenyNegativeNumbers = true;
+
             string input = "1,-2,3";
             // expected result = an Argument Exception exception will be thrown with a message that will contain the negative number provided
 
@@ -393,6 +547,8 @@ namespace calculatorChallenge
         {
             //arrange
             Calculator calculator = new Calculator();
+            calculator.DenyNegativeNumbers = true;
+
             string input = "1,-2,3,40,-42,-53,67";
             // expected result = an Argument Exception exception will be thrown with a message that lists all of the negative numbers provided
 
@@ -405,6 +561,8 @@ namespace calculatorChallenge
         {
             //arrange
             Calculator calculator = new Calculator();
+            calculator.DenyNegativeNumbers = true;
+
             string input = "1,-2,3,40,-42,-53,67";
             string expectedErrorMessage = Calculator.NegativeNumberErrorMessage + "-2, -42, -53";
             string actualErrorMessage = String.Empty;
@@ -424,11 +582,11 @@ namespace calculatorChallenge
         }
 
         [TestMethod()]
-        public void TestAdd_InputValueGreaterThan1000_ReturnsInputSum()
+        public void TestAdd_InputValueGreaterThanUpperBound_ReturnsInputSum()
         {
             //arrange           
             Calculator calculator = new Calculator();
-            string input = "1,2," + (Calculator.MaxAllowableInputValue + 1) + ",4,5,";
+            string input = "1,2," + (calculator.UpperBound + 1) + ",4,5,";
             int expectedResult = 12;  // numbers above max allowable will be converted to 0
 
             // act
