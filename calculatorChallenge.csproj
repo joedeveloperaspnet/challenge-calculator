@@ -55,8 +55,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Calculator.cs" />
+    <Compile Include="CalculatorTestCases.cs" />
+    <Compile Include="DefaultCalculatorArguements.cs" />
+    <Compile Include="FakeCalculatorArguements.cs" />
+    <Compile Include="ICalculatorArguements.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
