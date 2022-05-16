@@ -14,13 +14,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "";
-            int expectedResult = 0;
+            decimal expectedResult = 0;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -29,13 +29,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = null;
-            int expectedResult = 0;
+            Decimal expectedResult = 0;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -44,13 +44,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "20";
-            int expectedResult = 20;
+            decimal expectedResult = 20;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -59,13 +59,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "1,500";
-            int expectedResult = 501;
+            Decimal expectedResult = 501;
 
             // act
-            int actualResult = calculator.Add(input);
+            Decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -74,13 +74,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "5,tytyt";
-            int expectedResult = 5;
+            decimal expectedResult = 5;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -89,13 +89,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "1,2,3,4,5,6,7,8,9,10,11,12";
-            int expectedResult = 78;
+            decimal expectedResult = 78;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -104,13 +104,13 @@ namespace calculatorChallenge
             //arrange
             Calculator calculator = new Calculator();
             string input = "1\n2,3";
-            int expectedResult = 6;
+            decimal expectedResult = 6;
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -124,7 +124,7 @@ namespace calculatorChallenge
             // expected result = an Argument Exception exception will be thrown with a message that will contain the negative number provided
 
             //act + assert
-            Assert.ThrowsException<ArgumentException>(() => calculator.Add(input));
+            Assert.ThrowsException<ArgumentException>(() => calculator.Calculate(input));
         }
 
         [TestMethod()]
@@ -138,7 +138,7 @@ namespace calculatorChallenge
             // expected result = an Argument Exception exception will be thrown with a message that lists all of the negative numbers provided
 
             //act + assert
-            Assert.ThrowsException<ArgumentException>(() => calculator.Add(input));
+            Assert.ThrowsException<ArgumentException>(() => calculator.Calculate(input));
         }
 
         [TestMethod()]
@@ -149,13 +149,13 @@ namespace calculatorChallenge
             calculator.Arguements.DenyNegativeNumbers = true;
 
             string input = "1,-2,3,40,-42,-53,67";
-            string expectedErrorMessage = Calculator.NegativeNumberErrorMessage + "-2, -42, -53";
+            string expectedErrorMessage = Constants.NegativeNumberErrorMessage + "-2, -42, -53";
             string actualErrorMessage = String.Empty;
 
             //act
             try
             {
-                int actualResult = calculator.Add(input);
+                calculator.Calculate(input);
             }
             catch (Exception e)
             {
@@ -163,7 +163,7 @@ namespace calculatorChallenge
             }
 
             //assert
-            Assert.AreEqual(actualErrorMessage, expectedErrorMessage);
+            Assert.AreEqual( expectedErrorMessage, actualErrorMessage);
         }
 
         [TestMethod()]
@@ -172,13 +172,13 @@ namespace calculatorChallenge
             //arrange           
             Calculator calculator = new Calculator();
             string input = "1,2," + (calculator.Arguements.UpperBound + 1) + ",4,5,";
-            int expectedResult = 12;  // numbers above max allowable will be converted to 0
+            decimal expectedResult = 12;  // numbers above max allowable will be converted to 0
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -187,13 +187,13 @@ namespace calculatorChallenge
             //arrange           
             Calculator calculator = new Calculator();
             string input = "//#\n2#5";
-            int expectedResult = 7;  // # is the custom delimiter
+            decimal expectedResult = 7;  // # is the custom delimiter
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -202,13 +202,13 @@ namespace calculatorChallenge
             //arrange           
             Calculator calculator = new Calculator();
             string input = "//,\n2,ff,100";
-            int expectedResult = 102;  // , is the custom delimiter
+            decimal expectedResult = 102;  // , is the custom delimiter
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -217,13 +217,13 @@ namespace calculatorChallenge
             //arrange           
             Calculator calculator = new Calculator();
             string input = "//[***]\n11***22***33";
-            int expectedResult = 66;  // *** is the custom delimiter
+            decimal expectedResult = 66;  // *** is the custom delimiter
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -232,13 +232,13 @@ namespace calculatorChallenge
             //arrange           
             Calculator calculator = new Calculator();
             string input = "//[*][!!][r9r]\n11r9r22*hh*33!!44";
-            int expectedResult = 110;  // multiple custom delimiters
+            decimal expectedResult = 110;  // multiple custom delimiters
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [TestMethod()]
@@ -250,10 +250,10 @@ namespace calculatorChallenge
             string expectedFormula = "11 + 22 + 33 + 44";
 
             // act
-            calculator.Add(input);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(calculator.Formula, expectedFormula);
+            Assert.AreEqual(expectedFormula, calculator.Formula);
         }
 
         /// <summary>
@@ -263,32 +263,35 @@ namespace calculatorChallenge
         public void TestAdd_InputWithMultipleCustomDelimiterAnyLength_DisplayFormula_UsingDI()
         {
             //arrange           
-            FakeCalculatorArguements mockArguements = new FakeCalculatorArguements();
+            FakeCalculatorArguements_Addition mockArguements = new FakeCalculatorArguements_Addition();
             Calculator calculator = new Calculator(mockArguements);   //  UpperBound = 100 and AlturnateDelimiter = "???"
             string input = "//[*][!!][r9r]\n11r9r22*hh*33!!44???55???101";
             string expectedFormula = "11 + 22 + 33 + 44 + 55 + 0";  
 
             // act
-            calculator.Add(input);
+            calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(calculator.Formula, expectedFormula);
+            Assert.AreEqual(expectedFormula, calculator.Formula);
         }
 
+        /// <summary>
+        /// added for stretch goal #4 - Use DI
+        /// </summary>
         [TestMethod()]
         public void TestAdd_InputWithCustomDelimiterAnyLength_ReturnsInputSum_UsingDI()
         {
             //arrange           
-            FakeCalculatorArguements mockArguements = new FakeCalculatorArguements();
-            Calculator calculator = new Calculator(mockArguements);   //  UpperBound = 100 and AlturnateDelimiter = "???"
-            string input = "//[***]\n11***22***33???44???55,123,456";
-            int expectedResult = 165;  // *** is the custom delimiter
+            FakeCalculatorArguements_Subtraction mockArguements = new FakeCalculatorArguements_Subtraction();
+            Calculator calculator = new Calculator(mockArguements);   //  UpperBound = 600 and AlturnateDelimiter = "!!"
+            string input = "//[***]\n500,10***20***30!!40!!50,601";
+            decimal expectedResult = 350;  // *** is the custom delimiter
 
             // act
-            int actualResult = calculator.Add(input);
+            decimal actualResult = calculator.Calculate(input);
 
             //assert
-            Assert.AreEqual(actualResult, expectedResult);
+            Assert.AreEqual(expectedResult, actualResult);
         }
     }
 }

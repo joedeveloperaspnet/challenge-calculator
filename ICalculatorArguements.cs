@@ -6,6 +6,7 @@ namespace calculatorChallenge
     /// </summary>
     public interface ICalculatorArguements
     {
+        OperationType Operation { get; set; }
         bool DenyNegativeNumbers { get; set; }
         int UpperBound { get; set; }
         string AlturnateDelimiter { get; set; }

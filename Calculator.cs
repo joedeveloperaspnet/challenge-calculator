@@ -5,21 +5,14 @@ namespace calculatorChallenge
 {
     public class Calculator
     {
-        public const string NegativeNumberErrorMessage = "Input contains negative number(s):  ";
-
         public readonly ICalculatorArguements Arguements;
 
         public string Formula { get; set; }
-        public int Total { get; set; }
+        public decimal Total { get; set; }
         public string TotalResult
         {
             get
             {
-                if (Total.ToString() == Formula)
-                {
-                    return Formula;
-                }
-
                 return Formula + " = " + Total.ToString();
             }
         }
@@ -50,17 +43,18 @@ namespace calculatorChallenge
         ///      example: //[*][!!][r9r]\n11r9r22*hh*33!!44 will return 110
         /// Displays the formula used to calculate the result 
         ///      example:  2,,4,rrrr,1001,6 will return 2+0+4+0+0+6 = 12
+        ///  Support addition, subtraction, multiplication, and division operations
         /// NOTE: whitespace between the input values will be ignored
         /// </summary>
         /// <param name="input"></param>
-        /// <returns>the sum of the delimited input values</returns>
-        public int Add(string input)
+        /// <returns>the calculated result of the delimited input values basedon the operation type</returns>
+        public decimal Calculate (string input)
         {
             if (String.IsNullOrWhiteSpace(input))
             {
                 return 0;
             }
-           
+
             List<string> customDelimiterList = new List<string>();
 
             // look for custom delimiter of a single character using the format: //{delimiter}\n{numbers}
@@ -113,11 +107,15 @@ namespace calculatorChallenge
                 customDelimiterList.Add(Arguements.AlturnateDelimiter);
             }
 
-            int returnValue = 0;
+            decimal returnValue = 0;
             string[] delimiters = customDelimiterList.ToArray();
 
             string[] splitInput = input.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
             string negativeNumbers = String.Empty;
+
+            Total = 0;
+            Formula = String.Empty;
+            int inputCount = 0;
 
             // 1 or more input values exist
             foreach (var splitInputString in splitInput)
@@ -135,18 +133,41 @@ namespace calculatorChallenge
                         splitInputValue = 0;
                     }
 
-                    returnValue += splitInputValue;
+                    if (inputCount++ == 0)
+                    {
+                        returnValue = splitInputValue;
+                        Formula = splitInputValue.ToString();
+                        continue;
+                    }
 
-                    Formula += string.IsNullOrEmpty(Formula) ? splitInputValue.ToString() : " + " + splitInputValue.ToString();
+                    switch (Arguements.Operation)
+                    {
+                        case OperationType.Addition:
+                            returnValue += splitInputValue;
+                            break;
+                        case OperationType.Subtraction:
+                            returnValue -= splitInputValue;
+                            break;
+                        case OperationType.Multiplication:
+                            returnValue *= splitInputValue;
+                            break;
+                        case OperationType.Division:
+                            returnValue /= splitInputValue;
+                            break;
+                    }
 
-                    Total += splitInputValue;
+                    string operationChar = Utilities.GetOperationTypeChar(Arguements.Operation);
+
+                    Formula += " "  + operationChar + " " + splitInputValue.ToString();
                 }
             }
 
             if (Arguements.DenyNegativeNumbers && !String.IsNullOrEmpty(negativeNumbers))
             {
-                throw new ArgumentException(NegativeNumberErrorMessage + negativeNumbers);
+                throw new ArgumentException(Constants.NegativeNumberErrorMessage + negativeNumbers);
             }
+            
+            Total = returnValue;
 
             return returnValue;
         }

@@ -6,12 +6,14 @@ namespace calculatorChallenge
     /// </summary>
     public class DefaultCalculatorArguements : ICalculatorArguements
     {
+        public OperationType Operation { get; set; }
         public bool DenyNegativeNumbers { get; set; }
         public int UpperBound { get; set; }
         public string AlturnateDelimiter { get; set; }
 
         public DefaultCalculatorArguements()
         {
+            Operation = OperationType.Addition;
             DenyNegativeNumbers = false;
             UpperBound = 1000;
         }

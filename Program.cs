@@ -4,12 +4,14 @@
 /// Restarurant365 Code Challenge: String Calculator
 /// Candidate: Joseph DiPierro
 /// Created: May 13, 2022
-/// Updated: May 14, 2022
+/// Last Updated: May 15, 2022
 /// </summary>
 namespace calculatorChallenge
 {
     internal class Program
     {
+        static bool Canceled = false;
+
         static void Main(string[] args)
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Console_CancelKeyPress);
@@ -19,12 +21,12 @@ namespace calculatorChallenge
             DisplayAvailableDefaultArguements(calculator);
 
             // added for stretch goal #3
-
             SetAndDisplayConsoleArguements(args, calculator);
 
             GetSetAndDisplayCommandLineArguements(calculator);
 
-            GetAndProcessCalculatorAddition(calculator);
+            // modified for stretch goal #5
+            GetAndProcessCalculatorOperations(calculator);
 
             UnitTests.RunUnitTests();
 
@@ -44,12 +46,12 @@ namespace calculatorChallenge
         {
             Console.WriteLine();
             Console.WriteLine(" Available Arguements");
-            Console.WriteLine("---------------------------------------------");
+            Console.WriteLine("----------------------------------------------------");
             Console.WriteLine( " Deny negative numbers (boolean) default = " +  calculator.Arguements.DenyNegativeNumbers.ToString());
             Console.WriteLine(" Upper bound (integer) default = " + calculator.Arguements.UpperBound.ToString());
             Console.WriteLine(" Alturnate delimiter (string) predefined = , \\n");
             Console.WriteLine(" For example:  |?| 100 True");
-            Console.WriteLine("---------------------------------------------");
+            Console.WriteLine("----------------------------------------------------");
         }
 
         /// <summary>
@@ -68,12 +70,12 @@ namespace calculatorChallenge
             else
             {
                 Console.WriteLine("Specified Console Arguements");
-                Console.WriteLine("---------------------------------------------");
+                Console.WriteLine("----------------------------------------------------");
 
                 SetAndDisplayArguements(args, calculator);
             }
 
-            Console.WriteLine("---------------------------------------------");
+            Console.WriteLine("----------------------------------------------------");
         }
 
         /// <summary>
@@ -88,7 +90,7 @@ namespace calculatorChallenge
             string input = String.Empty;
 
             Console.WriteLine();
-            Console.Write("Enter arguements (optional): ");
+            Console.Write("Enter arguement(s) (optional): ");
             input = Console.ReadLine();
 
             if (!String.IsNullOrWhiteSpace(input))
@@ -98,8 +100,6 @@ namespace calculatorChallenge
                 string[] commandLineArgs  = input.Split(' ');
 
                 SetAndDisplayArguements(commandLineArgs, calculator);
-
-                Console.WriteLine("---------------------------------------------");
             }
         }
 
@@ -137,39 +137,65 @@ namespace calculatorChallenge
         /// Get numbers to add or Ctrl + C when finished
         /// </summary>
         /// <param name="calculator"></param>
-        static void GetAndProcessCalculatorAddition(Calculator calculator)
+        static void GetAndProcessCalculatorOperations(Calculator calculator)
         {
+            OperationType operation;
+            ConsoleKeyInfo operationInputKeyInfo;
             string input = String.Empty;
 
             Console.WriteLine();
-            Console.WriteLine("Enter input to add. Enter Ctrl + C when finished.");
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine(" Numbers can be entered directly, comma separated, or");
+            Console.WriteLine(" in this format:  //[{delimiter1}][{delimiter2}]...\\n{numbers}");
+            Console.WriteLine(" Valid operator types are:  +  -  /  *");
+            Console.WriteLine(" Enter Ctrl + C when finished.");
+            Console.WriteLine("----------------------------------------------------------------");
 
-            try
+            do
             {
-                do
+                Console.WriteLine();
+                Console.Write("Enter operator type: ");
+
+                operationInputKeyInfo = Console.ReadKey();
+
+                if (Canceled)
                 {
-                    Console.WriteLine();
-                    Console.Write("Enter Integer: ");
+                    break;   // Ctrl + C was entered
+                }
+
+                if (Utilities.TryParse(operationInputKeyInfo.KeyChar, out operation))
+                {
+                    calculator.Arguements.Operation = operation;
+
+                    Console.WriteLine(" " + Utilities.GetOperationTypeName(calculator.Arguements.Operation));
+                    Console.Write("Enter delimeters/numbers input: ");
 
                     input = Console.ReadLine();
 
                     if (input == null)
                     {
-                        // Ctrl + C was entered
-                        break;
+                        break;  // Ctrl + C was entered
                     }
 
-                    calculator.Add(input);
+                    try
+                    {
+                        calculator.Calculate(input);
 
-                    Console.WriteLine("Total: " + calculator.TotalResult);
-
-                } while (true);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error: " + e.Message);
-                Console.ReadLine();
-            }
+                        Console.WriteLine("Formula: " + calculator.TotalResult);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error: " + e.Message);
+                        Console.ReadLine();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.Write("Error: Invalid operator type!");
+                    Console.WriteLine();
+                }
+            } while (true);
 
             Console.WriteLine();
         }
@@ -189,6 +215,7 @@ namespace calculatorChallenge
             if (e.SpecialKey == ConsoleSpecialKey.ControlC)
             {
                 e.Cancel = true;
+                Canceled = true;
             }
         }
     }
